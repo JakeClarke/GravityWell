@@ -15,4 +15,8 @@ public abstract class Entity {
 	public boolean enabled = true;
 	
 	public boolean drawEnabled = true;
+
+	public int drawOrder = 0;
+
+	public int updateOrder = 0;
 }

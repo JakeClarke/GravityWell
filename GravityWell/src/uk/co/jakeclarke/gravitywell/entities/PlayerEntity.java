@@ -35,7 +35,6 @@ public class PlayerEntity extends Entity {
 		Vector2 velo = new Vector2(this.velocity);
 		this.position.add(velo.mul(elapsedMS));
 		Vector2 posDelta = new Vector2(this.position).sub(last);
-		Gdx.app.debug("Player pos", posDelta.toString());
 
 		for (GravityWell gw : this.entityManager.game.getWells()) {
 			if (gw.enabled) {

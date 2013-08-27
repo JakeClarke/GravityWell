@@ -75,4 +75,16 @@ public class GravityWell extends Entity {
 		return false;
 	}
 
+	public boolean intersectsWell(float x, float y) {
+		if (this.position.dst(x, y) < this.wellRadius) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean intersects(float x, float y) {
+		return this.intersectsCore(x, y) || this.intersectsWell(x, y);
+	}
+
 }

@@ -4,7 +4,8 @@ import java.util.ArrayList;
 
 import uk.co.jakeclarke.gravitywell.entities.EntityManager;
 import uk.co.jakeclarke.gravitywell.entities.GravityWell;
-import uk.co.jakeclarke.gravitywell.entities.PlayerEntity;
+import uk.co.jakeclarke.gravitywell.entities.SpawnEntity;
+import uk.co.jakeclarke.gravitywell.ui.UIManager;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -17,30 +18,36 @@ public class GravityWellGame implements ApplicationListener {
 
 	public static final int TARGET_WIDTH = 1280, TARGET_HEIGHT = 720;
 
-	private OrthographicCamera camera;
-	private SpriteBatch batch;
+	private OrthographicCamera camera, uicamera;
+	private SpriteBatch batch, uiBatch;
 	private EntityManager entityManager;
 	private ArrayList<GravityWell> wells;
-	private PlayerEntity playerEntity;
+	private UIManager ui = new UIManager();
+	private int lives = 10;
 	
 	@Override
 	public void create() {
 		Gdx.app.setLogLevel(Gdx.app.LOG_DEBUG);
 
 		this.wells = new ArrayList<GravityWell>();
-		this.playerEntity = new PlayerEntity();
 
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 		
 		camera = new OrthographicCamera(TARGET_WIDTH, TARGET_HEIGHT);
+		uicamera = new OrthographicCamera(TARGET_WIDTH, TARGET_HEIGHT);
+
 		batch = new SpriteBatch();
+		uiBatch = new SpriteBatch();
+		uiBatch.setProjectionMatrix(this.uicamera.combined);
 
 		this.entityManager = new EntityManager(this);
 
-		this.playerEntity.batch = this.batch;
-		this.playerEntity.position = new Vector2(-400f, 50f);
-		this.entityManager.add(playerEntity);
+		SpawnEntity spawn = new SpawnEntity();
+		spawn.batch = this.batch;
+		spawn.position = new Vector2(-400f, 50f);
+		spawn.spawnedVelocity = new Vector2(100f, 0f);
+		this.entityManager.add(spawn);
 	}
 
 	@Override
@@ -66,6 +73,9 @@ public class GravityWellGame implements ApplicationListener {
 		this.entityManager.render();
 
 		batch.end();
+		uiBatch.begin();
+
+		uiBatch.end();
 	}
 
 	@Override
@@ -82,7 +92,6 @@ public class GravityWellGame implements ApplicationListener {
 
 	public void gameOver() {
 		Gdx.app.log("Gravity well", "Game over!");
-		this.playerEntity.enabled = false;
 	}
 
 	public ArrayList<GravityWell> getWells() {
@@ -110,9 +119,13 @@ public class GravityWellGame implements ApplicationListener {
 
 		Gdx.app.debug("Touch", "Touch at: " + x + ", " + y);
 
+		if (this.ui.handleInput(x, y)) {
+			return;
+		}
+
 		GravityWell[] ws = this.getWells().toArray(new GravityWell[0]);
 		for (GravityWell gw : ws) {
-			if (gw.intersectsCore(x, y)) {
+			if (gw.intersects(x, y)) {
 				this.wells.remove(gw);
 				this.entityManager.remove(gw);
 				return;
@@ -124,5 +137,11 @@ public class GravityWellGame implements ApplicationListener {
 
 	public void restartGame() {
 		this.create();
+	}
+
+	public void destoybit() {
+		if(this.lives == 0) {
+			gameOver();
+		}
 	}
 }
